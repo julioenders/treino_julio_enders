@@ -363,6 +363,11 @@ footer {
       <input id="restore2" type="file" accept="application/json,.json" style="display:none">
     </div>
   </div>
+  <div class="card">
+    <h2>Zerar historico</h2>
+    <div class="card-sub">Apaga todos os treinos salvos localmente. Se estiver conectado ao Google Sheets, a planilha nao sera alterada.</div>
+    <button class="btn btn-danger" id="clearHistory">Apagar todo o historico local</button>
+  </div>
 </div>
 
 <footer>Este app e um registro pessoal. Nao substitui orientacao de um profissional de educacao fisica.</footer>
@@ -769,6 +774,16 @@ $('clearUrl').addEventListener('click', () => {
     updateSyncBadge();
     addSyncLog('Desconectado', false);
     toast('Desconectado', 'error');
+  }
+});
+
+$('clearHistory').addEventListener('click', () => {
+  if (state.history.length === 0) { toast('Historico ja esta vazio', 'error'); return; }
+  if (confirm('Apagar TODOS os ' + state.history.length + ' treinos do historico local? Essa acao nao pode ser desfeita.')) {
+    state.history = [];
+    state.drafts = {};
+    save(); stats();
+    toast('Historico zerado', 'success');
   }
 });
 
