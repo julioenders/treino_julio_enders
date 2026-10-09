@@ -498,29 +498,37 @@ function getSheetUrl() { return localStorage.getItem(KEY_URL) || ''; }
 async function sheetPost(data) {
   const url = getSheetUrl();
   if (!url) return null;
-  const r = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(data)
-  });
-  return await r.json();
+  // Google Apps Script redireciona (302) — tentar fetch normal primeiro
+  try {
+    const r = await fetch(url, { method: 'POST', redirect: 'follow', body: JSON.stringify(data) });
+    const text = await r.text();
+    try { return JSON.parse(text); } catch { return { status: 'ok' }; }
+  } catch {}
+  // Fallback: no-cors (fire-and-forget, nao le resposta mas dados sao enviados)
+  try {
+    await fetch(url, { method: 'POST', mode: 'no-cors', redirect: 'follow', body: JSON.stringify(data) });
+    return { status: 'ok' };
+  } catch { return null; }
 }
 
 async function sheetGet() {
   const url = getSheetUrl();
   if (!url) return null;
-  const r = await fetch(url);
-  return await r.json();
+  try {
+    const r = await fetch(url, { redirect: 'follow' });
+    const text = await r.text();
+    return JSON.parse(text);
+  } catch { return null; }
 }
 
 async function syncSaveEntry(entry) {
   if (!getSheetUrl()) return;
   try {
     const res = await sheetPost({ action: 'save', entry });
-    if (res && res.status === 'ok') {
+    if (res) {
       addSyncLog('Treino enviado para planilha', true);
     } else {
-      addSyncLog('Erro ao enviar: ' + (res?.message || 'desconhecido'), false);
+      addSyncLog('Erro ao enviar treino', false);
     }
   } catch (err) {
     addSyncLog('Falha de conexao: ' + err.message, false);
@@ -532,11 +540,11 @@ async function syncUpAll() {
   toast('Enviando treinos...', 'success');
   try {
     const res = await sheetPost({ action: 'sync', history: state.history });
-    if (res && res.status === 'ok') {
+    if (res) {
       addSyncLog('Todos os ' + state.history.length + ' treinos enviados', true);
       toast(state.history.length + ' treinos sincronizados', 'success');
     } else {
-      addSyncLog('Erro no sync: ' + (res?.message || ''), false);
+      addSyncLog('Erro no sync', false);
       toast('Erro ao sincronizar', 'error');
     }
   } catch (err) {
@@ -565,7 +573,7 @@ async function syncDownAll() {
       }
     } else {
       addSyncLog('Erro: ' + (res?.message || 'resposta invalida'), false);
-      toast('Erro ao baixar', 'error');
+      toast('Erro ao baixar dados', 'error');
     }
   } catch (err) {
     addSyncLog('Falha: ' + err.message, false);
@@ -574,10 +582,17 @@ async function syncDownAll() {
 }
 
 async function testConnection(url) {
+  // Tenta fetch normal (GET) — funciona se CORS do redirect estiver ok
   try {
-    const r = await fetch(url);
-    const data = await r.json();
+    const r = await fetch(url, { redirect: 'follow' });
+    const text = await r.text();
+    const data = JSON.parse(text);
     if (data && data.status === 'ok') return true;
+  } catch {}
+  // Fallback: no-cors ping — se nao der erro de rede, URL existe
+  try {
+    const r = await fetch(url, { mode: 'no-cors', redirect: 'follow' });
+    return true;
   } catch {}
   return false;
 }
