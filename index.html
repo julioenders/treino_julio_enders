@@ -500,27 +500,22 @@ function renderSyncLog() {
 // ═══ GOOGLE SHEETS SYNC ═══
 function getSheetUrl() { return localStorage.getItem(KEY_URL) || ''; }
 
-async function sheetPost(data) {
-  const url = getSheetUrl();
-  if (!url) return null;
-  // Google Apps Script redireciona (302) — tentar fetch normal primeiro
+async function sheetSend(data) {
+  const base = getSheetUrl();
+  if (!base) return null;
+  const url = base + '?data=' + encodeURIComponent(JSON.stringify(data));
   try {
-    const r = await fetch(url, { method: 'POST', redirect: 'follow', body: JSON.stringify(data) });
+    const r = await fetch(url, { redirect: 'follow' });
     const text = await r.text();
-    try { return JSON.parse(text); } catch { return { status: 'ok' }; }
-  } catch {}
-  // Fallback: no-cors (fire-and-forget, nao le resposta mas dados sao enviados)
-  try {
-    await fetch(url, { method: 'POST', mode: 'no-cors', redirect: 'follow', body: JSON.stringify(data) });
-    return { status: 'ok' };
+    return JSON.parse(text);
   } catch { return null; }
 }
 
 async function sheetGet() {
-  const url = getSheetUrl();
-  if (!url) return null;
+  const base = getSheetUrl();
+  if (!base) return null;
   try {
-    const r = await fetch(url, { redirect: 'follow' });
+    const r = await fetch(base, { redirect: 'follow' });
     const text = await r.text();
     return JSON.parse(text);
   } catch { return null; }
@@ -529,7 +524,7 @@ async function sheetGet() {
 async function syncSaveEntry(entry) {
   if (!getSheetUrl()) return;
   try {
-    const res = await sheetPost({ action: 'save', entry });
+    const res = await sheetSend({ action: 'save', entry });
     if (res) {
       addSyncLog('Treino enviado para planilha', true);
     } else {
@@ -544,7 +539,7 @@ async function syncUpAll() {
   if (!getSheetUrl()) { toast('Configure a URL primeiro', 'error'); return; }
   toast('Enviando treinos...', 'success');
   try {
-    const res = await sheetPost({ action: 'sync', history: state.history });
+    const res = await sheetSend({ action: 'sync', history: state.history });
     if (res) {
       addSyncLog('Todos os ' + state.history.length + ' treinos enviados', true);
       toast(state.history.length + ' treinos sincronizados', 'success');
