@@ -38,6 +38,18 @@ main { max-width: 600px; margin: 0 auto; padding: 16px 14px 100px; }
 .header h1 { font-size: 28px; font-weight: 800; }
 .header .sub { font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
 
+/* ── Sync badge ── */
+.sync-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600; padding: 4px 10px;
+  border-radius: 20px; margin-top: 8px;
+}
+.sync-badge.connected { background: var(--green-dim); color: var(--green); }
+.sync-badge.disconnected { background: rgba(244,63,94,.08); color: var(--red); }
+.sync-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+.sync-badge.connected .dot { background: var(--green); }
+.sync-badge.disconnected .dot { background: var(--red); }
+
 /* ── Stats ── */
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
 .stat { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 14px 10px; text-align: center; }
@@ -111,6 +123,17 @@ main { max-width: 600px; margin: 0 auto; padding: 16px 14px 100px; }
 .field input:focus { outline: none; border-color: var(--green); }
 .field input::placeholder { color: #4a5e7a; }
 
+/* ── Full width field ── */
+.field-full { margin-top: 12px; }
+.field-full label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+.field-full input {
+  width: 100%; padding: 12px 14px; font-size: 14px; font-family: inherit;
+  background: #0b192a; border: 1px solid var(--line); border-radius: var(--radius-sm);
+  color: var(--text); transition: border-color .15s;
+}
+.field-full input:focus { outline: none; border-color: var(--green); }
+.field-full input::placeholder { color: #4a5e7a; }
+
 /* ── Buttons ── */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -123,8 +146,10 @@ main { max-width: 600px; margin: 0 auto; padding: 16px 14px 100px; }
 .btn-primary { background: var(--green); color: #0a1a14; border-color: var(--green); }
 .btn-primary:active { background: #45c89a; }
 .btn-danger { color: var(--red); border-color: rgba(244,63,94,.3); }
+.btn-blue { background: rgba(79,140,255,.12); color: var(--blue); border-color: rgba(79,140,255,.25); }
 .btn-row { display: flex; gap: 8px; margin-top: 16px; }
 .btn-row .btn { flex: 1; }
+.btn-stack { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
 
 /* ── Timer ── */
 .timer-display { font-size: 52px; font-weight: 800; text-align: center; font-variant-numeric: tabular-nums; padding: 10px 0; }
@@ -158,6 +183,41 @@ main { max-width: 600px; margin: 0 auto; padding: 16px 14px 100px; }
 .rotation-week .week-days { color: var(--muted); }
 .rotation-week .week-days b { color: var(--text); }
 
+/* ── Config steps ── */
+.config-steps { counter-reset: step; margin-top: 12px; }
+.config-step {
+  display: flex; gap: 12px; padding: 12px 0;
+  border-bottom: 1px solid var(--line); font-size: 13px; line-height: 1.6;
+}
+.config-step:last-child { border-bottom: none; }
+.config-step::before {
+  counter-increment: step; content: counter(step);
+  flex-shrink: 0; width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--green-dim); color: var(--green);
+  border-radius: 50%; font-weight: 800; font-size: 13px;
+}
+.config-step a { color: var(--blue); }
+
+/* ── Sync log ── */
+.sync-log { margin-top: 14px; font-size: 12px; color: var(--muted); }
+.sync-log-entry { padding: 6px 0; border-bottom: 1px solid rgba(37,53,80,.3); display: flex; justify-content: space-between; }
+.sync-log-entry:last-child { border-bottom: none; }
+.sync-ok { color: var(--green); }
+.sync-err { color: var(--red); }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-80px);
+  background: #1e3350; border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 12px 20px; font-size: 13px; font-weight: 600; z-index: 200;
+  box-shadow: 0 8px 30px rgba(0,0,0,.5); transition: transform .3s ease;
+  max-width: 90vw; text-align: center;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: rgba(88,223,173,.3); }
+.toast.error { border-color: rgba(244,63,94,.3); }
+
 /* ── Section visibility ── */
 .section { display: none; }
 .section.visible { display: block; }
@@ -177,6 +237,7 @@ footer {
   .card { padding: 14px 12px; }
   .timer-display { font-size: 42px; }
   .field { min-width: 100px; }
+  .tab-bar button { font-size: 9px; }
 }
 @media (min-width: 500px) {
   main { padding: 20px 20px 100px; }
@@ -191,6 +252,7 @@ footer {
   <div class="eyebrow">Diario de evolucao</div>
   <h1>Treino Julio</h1>
   <div class="sub">Perda de gordura + ganho de massa · 4x/semana · ~60 min</div>
+  <div id="syncBadge" class="sync-badge disconnected"><span class="dot"></span><span id="syncBadgeText">Offline</span></div>
 </div>
 
 <div class="stats">
@@ -199,7 +261,7 @@ footer {
   <div class="stat"><strong id="next">A</strong><span>Proximo</span></div>
 </div>
 
-<!-- ═══ TREINO ═══ -->
+<!-- TREINO -->
 <div id="sec-train" class="section visible">
   <div class="card">
     <div class="eyebrow" id="heading-label">Treino A</div>
@@ -216,7 +278,6 @@ footer {
     </div>
   </div>
 
-  <!-- Timer -->
   <div class="card">
     <h2>Cronometro de descanso</h2>
     <div class="card-sub">Isolados: 60-90s · Compostos: 90-120s</div>
@@ -233,21 +294,21 @@ footer {
   </div>
 </div>
 
-<!-- ═══ HISTORICO ═══ -->
+<!-- HISTORICO -->
 <div id="sec-history" class="section">
   <div class="card">
     <h2>Historico</h2>
-    <div class="card-sub">Dados salvos no navegador deste aparelho. Exporte um backup para nao perder.</div>
+    <div class="card-sub">Treinos salvos localmente e sincronizados com Google Sheets.</div>
     <div class="btn-row" style="margin-bottom:16px;">
-      <button class="btn" id="backup">Exportar backup</button>
-      <label class="btn" for="restore" style="cursor:pointer">Importar</label>
+      <button class="btn" id="backup">Exportar JSON</button>
+      <label class="btn" for="restore" style="cursor:pointer">Importar JSON</label>
       <input id="restore" type="file" accept="application/json,.json" style="display:none">
     </div>
     <div id="history-items"></div>
   </div>
 </div>
 
-<!-- ═══ PLANO ═══ -->
+<!-- PLANO -->
 <div id="sec-plan" class="section">
   <div class="card">
     <h2>Plano de rotacao</h2>
@@ -264,21 +325,65 @@ footer {
   </div>
 </div>
 
-<footer>Este app e um registro pessoal. Nao substitui orientacao de um profissional de educacao fisica. Cargas listadas sao referencias iniciais.</footer>
+<!-- CONFIG -->
+<div id="sec-config" class="section">
+  <div class="card">
+    <h2>Google Sheets Sync</h2>
+    <div class="card-sub">Sincronize seus treinos com uma planilha do Google para acessar de qualquer dispositivo.</div>
+
+    <div class="config-steps">
+      <div class="config-step">Abra <a href="https://sheets.google.com" target="_blank">sheets.google.com</a> e crie uma planilha nova (ex: "Meus Treinos")</div>
+      <div class="config-step">Na planilha, va em <b>Extensoes > Apps Script</b></div>
+      <div class="config-step">Apague o conteudo padrao e cole o script do arquivo <b>google-apps-script.js</b> (disponivel no repositorio)</div>
+      <div class="config-step">Clique em <b>Implantar > Nova implantacao</b>. Tipo: <b>App da Web</b>. Executar como: <b>Eu</b>. Acesso: <b>Qualquer pessoa</b>. Clique em Implantar e autorize.</div>
+      <div class="config-step">Copie a URL gerada e cole abaixo:</div>
+    </div>
+
+    <div class="field-full">
+      <label>URL do Google Apps Script</label>
+      <input id="sheetUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" spellcheck="false">
+    </div>
+
+    <div class="btn-stack">
+      <button class="btn btn-primary" id="saveUrl">Salvar e testar conexao</button>
+      <button class="btn btn-blue" id="syncUp">Enviar todos os treinos para a planilha</button>
+      <button class="btn btn-blue" id="syncDown">Baixar treinos da planilha</button>
+      <button class="btn btn-danger" id="clearUrl">Desconectar</button>
+    </div>
+
+    <div class="sync-log" id="syncLog"></div>
+  </div>
+
+  <div class="card">
+    <h2>Backup local</h2>
+    <div class="card-sub">O backup JSON funciona independente do Google Sheets.</div>
+    <div class="btn-row">
+      <button class="btn" id="backup2">Exportar JSON</button>
+      <label class="btn" for="restore2" style="cursor:pointer">Importar JSON</label>
+      <input id="restore2" type="file" accept="application/json,.json" style="display:none">
+    </div>
+  </div>
+</div>
+
+<footer>Este app e um registro pessoal. Nao substitui orientacao de um profissional de educacao fisica.</footer>
 </main>
 
-<!-- ═══ TAB BAR ═══ -->
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- TAB BAR -->
 <nav class="tab-bar" aria-label="Navegacao">
   <button data-tab="A" class="active"><span class="tab-icon">💪</span>A · Peito</button>
   <button data-tab="B"><span class="tab-icon">🦵</span>B · Pernas</button>
   <button data-tab="C"><span class="tab-icon">🔙</span>C · Costas</button>
   <button data-tab="history"><span class="tab-icon">📋</span>Historico</button>
-  <button data-tab="plan"><span class="tab-icon">📅</span>Plano</button>
+  <button data-tab="config"><span class="tab-icon">⚙️</span>Config</button>
 </nav>
 
 <script>
 'use strict';
 
+// ═══ PLANS ═══
 const plans = {
   A: {
     title: 'Peito + ombros',
@@ -319,22 +424,36 @@ const plans = {
   }
 };
 
+// ═══ STATE ═══
 const $ = id => document.getElementById(id);
 const KEY = 'treino-julio-abc-v1';
+const KEY_URL = 'treino-julio-sheet-url';
 let state;
 try { state = JSON.parse(localStorage.getItem(KEY)); } catch {}
 if (!state || !Array.isArray(state.history) || !state.drafts) state = { history: [], drafts: {} };
 let current = 'A';
+let syncLogs = [];
 
 const esc = x => String(x).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); }
-  catch { alert('Falha ao salvar. Verifique o armazenamento.'); }
+  catch { toast('Falha ao salvar localmente', 'error'); }
 }
 
 function draft() { return state.drafts[current] || (state.drafts[current] = []); }
 
+// ═══ TOAST ═══
+let toastTimer;
+function toast(msg, type) {
+  const el = $('toast');
+  el.textContent = msg;
+  el.className = 'toast ' + (type || '') + ' show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ═══ STATS ═══
 function stats() {
   const d = new Date(), m = new Date(d);
   m.setHours(0,0,0,0);
@@ -344,6 +463,126 @@ function stats() {
   $('next').textContent = ['A','B','C'][state.history.length % 3];
 }
 
+// ═══ SYNC BADGE ═══
+function updateSyncBadge() {
+  const url = localStorage.getItem(KEY_URL);
+  const badge = $('syncBadge');
+  const text = $('syncBadgeText');
+  if (url) {
+    badge.className = 'sync-badge connected';
+    text.textContent = 'Google Sheets conectado';
+  } else {
+    badge.className = 'sync-badge disconnected';
+    text.textContent = 'Offline — somente local';
+  }
+}
+
+// ═══ SYNC LOG ═══
+function addSyncLog(msg, ok) {
+  const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  syncLogs.unshift({ time, msg, ok });
+  if (syncLogs.length > 10) syncLogs.length = 10;
+  renderSyncLog();
+}
+
+function renderSyncLog() {
+  $('syncLog').innerHTML = syncLogs.length
+    ? '<div style="font-weight:700;margin-bottom:6px;">Log de sincronizacao</div>' +
+      syncLogs.map(l => `<div class="sync-log-entry"><span class="${l.ok ? 'sync-ok' : 'sync-err'}">${esc(l.msg)}</span><span>${l.time}</span></div>`).join('')
+    : '';
+}
+
+// ═══ GOOGLE SHEETS SYNC ═══
+function getSheetUrl() { return localStorage.getItem(KEY_URL) || ''; }
+
+async function sheetPost(data) {
+  const url = getSheetUrl();
+  if (!url) return null;
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(data)
+  });
+  return await r.json();
+}
+
+async function sheetGet() {
+  const url = getSheetUrl();
+  if (!url) return null;
+  const r = await fetch(url);
+  return await r.json();
+}
+
+async function syncSaveEntry(entry) {
+  if (!getSheetUrl()) return;
+  try {
+    const res = await sheetPost({ action: 'save', entry });
+    if (res && res.status === 'ok') {
+      addSyncLog('Treino enviado para planilha', true);
+    } else {
+      addSyncLog('Erro ao enviar: ' + (res?.message || 'desconhecido'), false);
+    }
+  } catch (err) {
+    addSyncLog('Falha de conexao: ' + err.message, false);
+  }
+}
+
+async function syncUpAll() {
+  if (!getSheetUrl()) { toast('Configure a URL primeiro', 'error'); return; }
+  toast('Enviando treinos...', 'success');
+  try {
+    const res = await sheetPost({ action: 'sync', history: state.history });
+    if (res && res.status === 'ok') {
+      addSyncLog('Todos os ' + state.history.length + ' treinos enviados', true);
+      toast(state.history.length + ' treinos sincronizados', 'success');
+    } else {
+      addSyncLog('Erro no sync: ' + (res?.message || ''), false);
+      toast('Erro ao sincronizar', 'error');
+    }
+  } catch (err) {
+    addSyncLog('Falha: ' + err.message, false);
+    toast('Falha de conexao', 'error');
+  }
+}
+
+async function syncDownAll() {
+  if (!getSheetUrl()) { toast('Configure a URL primeiro', 'error'); return; }
+  toast('Baixando treinos...', 'success');
+  try {
+    const res = await sheetGet();
+    if (res && res.status === 'ok' && Array.isArray(res.history)) {
+      if (res.history.length === 0) {
+        toast('Planilha vazia — nada para importar', 'error');
+        addSyncLog('Planilha vazia', false);
+        return;
+      }
+      if (confirm('Substituir historico local por ' + res.history.length + ' treinos da planilha?')) {
+        state.history = res.history;
+        save(); stats();
+        addSyncLog('Importados ' + res.history.length + ' treinos da planilha', true);
+        toast(res.history.length + ' treinos importados', 'success');
+        if (document.querySelector('[data-tab="history"]').classList.contains('active')) renderHistory();
+      }
+    } else {
+      addSyncLog('Erro: ' + (res?.message || 'resposta invalida'), false);
+      toast('Erro ao baixar', 'error');
+    }
+  } catch (err) {
+    addSyncLog('Falha: ' + err.message, false);
+    toast('Falha de conexao', 'error');
+  }
+}
+
+async function testConnection(url) {
+  try {
+    const r = await fetch(url);
+    const data = await r.json();
+    if (data && data.status === 'ok') return true;
+  } catch {}
+  return false;
+}
+
+// ═══ PROGRESS ═══
 function updateProgress() {
   const done = draft().filter(x => x?.done).length;
   const all = plans[current].ex.length;
@@ -351,10 +590,12 @@ function updateProgress() {
   $('count').textContent = done + ' de ' + all + ' exercicios';
 }
 
+// ═══ YOUTUBE ═══
 function ytUrl(query) {
   return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(query.replace(/\+/g, ' ') + ' exercicio como fazer');
 }
 
+// ═══ RENDER TRAINING ═══
 function renderTraining() {
   const plan = plans[current], d = draft();
   $('heading-label').textContent = 'Treino ' + current;
@@ -392,6 +633,7 @@ function renderTraining() {
   updateProgress();
 }
 
+// ═══ RENDER HISTORY ═══
 function renderHistory() {
   const rows = state.history.slice().reverse();
   $('history-items').innerHTML = rows.length
@@ -405,6 +647,7 @@ function renderHistory() {
     : '<div class="history-empty">Nenhum treino registrado ainda.</div>';
 }
 
+// ═══ SHOW SECTION ═══
 function showSection(tab) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
   document.querySelectorAll('.tab-bar button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
@@ -414,6 +657,10 @@ function showSection(tab) {
     renderHistory();
   } else if (tab === 'plan') {
     $('sec-plan').classList.add('visible');
+  } else if (tab === 'config') {
+    $('sec-config').classList.add('visible');
+    $('sheetUrl').value = getSheetUrl();
+    renderSyncLog();
   } else {
     current = tab;
     $('sec-train').classList.add('visible');
@@ -421,52 +668,96 @@ function showSection(tab) {
   }
 }
 
-// Tab navigation
+// ═══ TAB NAVIGATION ═══
 document.querySelectorAll('.tab-bar button').forEach(b =>
   b.addEventListener('click', () => showSection(b.dataset.tab))
 );
 
-// Finish workout
-$('finish').addEventListener('click', () => {
+// ═══ FINISH WORKOUT ═══
+$('finish').addEventListener('click', async () => {
   const d = draft(), p = plans[current];
   if (!d.some(x => x?.done)) { alert('Marque pelo menos um exercicio.'); return; }
   if (d.filter(x => x?.done).length < p.ex.length && !confirm('Alguns exercicios nao marcados. Salvar mesmo assim?')) return;
-  state.history.push({
+
+  const entry = {
     date: new Date().toISOString(),
     training: current,
     title: p.title,
     items: p.ex.map((x, i) => ({ name: x[0], done: !!d[i]?.done, weight: d[i]?.weight ?? x[2], reps: d[i]?.reps ?? '' }))
-  });
+  };
+
+  state.history.push(entry);
   state.drafts[current] = [];
   save(); stats();
+
+  syncSaveEntry(entry);
+
   current = ['A','B','C'][state.history.length % 3];
   showSection(current);
-  alert('Treino salvo!');
+  toast('Treino salvo!', 'success');
 });
 
-// Clear
+// ═══ CLEAR ═══
 $('clear').addEventListener('click', () => {
   if (confirm('Limpar anotacoes deste treino?')) { state.drafts[current] = []; save(); renderTraining(); }
 });
 
-// Backup / restore
-$('backup').addEventListener('click', () => {
+// ═══ BACKUP / RESTORE ═══
+function doBackup() {
   const url = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }));
   const a = document.createElement('a'); a.href = url; a.download = 'treino-julio-backup.json'; a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-});
-$('restore').addEventListener('change', async e => {
-  const f = e.target.files[0]; if (!f) return;
+}
+
+async function doRestore(file) {
+  if (!file) return;
   try {
-    if (f.size > 2_000_000) throw Error('Arquivo muito grande');
-    const obj = JSON.parse(await f.text());
+    if (file.size > 2_000_000) throw Error('Arquivo muito grande');
+    const obj = JSON.parse(await file.text());
     if (!Array.isArray(obj.history) || typeof obj.drafts !== 'object') throw Error('Backup invalido');
-    if (confirm('Substituir todos os dados atuais?')) { state = obj; save(); stats(); showSection(current); }
+    if (confirm('Substituir todos os dados atuais?')) {
+      state = obj; save(); stats(); showSection(current);
+      toast('Backup restaurado!', 'success');
+    }
   } catch (err) { alert(err.message); }
-  e.target.value = '';
+}
+
+$('backup').addEventListener('click', doBackup);
+$('backup2').addEventListener('click', doBackup);
+$('restore').addEventListener('change', e => { doRestore(e.target.files[0]); e.target.value = ''; });
+$('restore2').addEventListener('change', e => { doRestore(e.target.files[0]); e.target.value = ''; });
+
+// ═══ CONFIG: SHEET URL ═══
+$('saveUrl').addEventListener('click', async () => {
+  const url = $('sheetUrl').value.trim();
+  if (!url) { toast('Cole a URL do Apps Script', 'error'); return; }
+  toast('Testando conexao...', 'success');
+  const ok = await testConnection(url);
+  if (ok) {
+    localStorage.setItem(KEY_URL, url);
+    updateSyncBadge();
+    addSyncLog('Conexao estabelecida com sucesso', true);
+    toast('Conectado ao Google Sheets!', 'success');
+  } else {
+    addSyncLog('Falha ao conectar — verifique a URL e as permissoes', false);
+    toast('Falha na conexao — verifique a URL', 'error');
+  }
 });
 
-// Timer
+$('syncUp').addEventListener('click', syncUpAll);
+$('syncDown').addEventListener('click', syncDownAll);
+
+$('clearUrl').addEventListener('click', () => {
+  if (confirm('Desconectar do Google Sheets? (seus dados locais serao mantidos)')) {
+    localStorage.removeItem(KEY_URL);
+    $('sheetUrl').value = '';
+    updateSyncBadge();
+    addSyncLog('Desconectado', false);
+    toast('Desconectado', 'error');
+  }
+});
+
+// ═══ TIMER ═══
 let timerSeconds = 90, timerPreset = 90, timerInterval = null;
 
 function timerDisplay() {
@@ -496,15 +787,16 @@ $('start').addEventListener('click', () => {
     if (timerSeconds <= 0) {
       stopTimer();
       if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-      alert('Descanso concluido!');
+      toast('Descanso concluido!', 'success');
     }
   }, 1000);
 });
 
 $('reset').addEventListener('click', () => { stopTimer(); timerSeconds = timerPreset; timerDisplay(); });
 
-// Init
+// ═══ INIT ═══
 stats();
+updateSyncBadge();
 renderTraining();
 </script>
 </body>
